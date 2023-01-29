@@ -1436,6 +1436,18 @@ impl PreparedPlot {
 
         let font_id = TextStyle::Body.resolve(ui.style());
 
+        let invalid_either_bound = |val: f64| {
+            (val - f64::MIN).abs() < f64::EPSILON
+                || (val - f64::MAX).abs() < f64::EPSILON
+                || !val.is_normal()
+        };
+
+        // Checks if either min or max bound is very big or very small to avoid panics when clamping.
+        if invalid_either_bound(bounds.min[1 - axis]) || invalid_either_bound(bounds.max[1 - axis])
+        {
+            return;
+        }
+
         // Where on the cross-dimension to show the label values
         let value_cross = 0.0_f64.clamp(bounds.min[1 - axis], bounds.max[1 - axis]);
 
